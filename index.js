@@ -7,6 +7,8 @@ let hours = {};
 let days = {};
 let token = ""
 let username = "";
+const urlParams = new URLSearchParams(window.location.search);
+username = urlParams.Get("username")
 
 let results = {
   MUL: "",
@@ -148,20 +150,6 @@ function getHourAndDay(link) {
 }
 
   token = process.env.GITHUB_ACCESS_TOKEN;
-  fetch("https://api.github.com/user",{
-   headers:{
-      Authorization: `bearer ${token}`,
-   },
-  })
-  .then(response => response.json())
-  .then(data => {
-    console.log(data.login);
-    // Extract the username from the response data
-    username = data.login; // 'login' is the key for the username in the GitHub API response
-  })
-  .catch(error => {
-    console.error('Error fetching user info:', error);
-  });
   fetch("https://api.github.com/users/" + username + "/repos", {
     headers: {
       Authorization: `bearer ${token}`,
