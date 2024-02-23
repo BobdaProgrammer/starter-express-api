@@ -5,10 +5,8 @@ let languages = {};
 let starred = [];
 let hours = {};
 let days = {};
-const urlParams = new URLSearchParams(window.location.search);
-let token = urlParams.get("token");
+let token = ""
 let username = "";
-let summary = "";
 
 let results = {
   MUL: "",
@@ -148,9 +146,8 @@ function getHourAndDay(link) {
       console.log("Fetch error: ", error);
     });
 }
-  const urlParams = new URLSearchParams(window.location.search);
+
   token = process.env.GITHUB_ACCESS_TOKEN;
-  let username;
   fetch("https://api.github.com/user",{
    headers:{
       Authorization: `bearer ${token}`,
