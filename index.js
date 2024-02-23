@@ -7,8 +7,7 @@ let hours = {};
 let days = {};
 let token = ""
 let username = "";
-const urlParams = new URLSearchParams(window.location.search);
-username = urlParams.Get("username")
+username = req.query.username
 
 let results = {
   MUL: "",
