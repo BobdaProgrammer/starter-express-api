@@ -119,7 +119,13 @@ app.all("/", (req, res) => {
     })
       .then((response) => {
         if (!response.ok) {
-          throw new Error(`Network response was not ok, status: ${link}`);
+          if (response.message == "Git Repository is empty.") {
+            console.log("no commits");
+          } else {
+            throw new Error(
+              `Network response was not ok, status: ${response.status}`
+            );
+          }
         }
 
         return response.json();
