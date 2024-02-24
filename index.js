@@ -1,154 +1,152 @@
-const express = require('express')
-const cors = require('cors');
-const app = express()
-app.use(cors())
-app.all('/', (req, res) => {
-let languages = {};
-let starred = [];
-let hours = {};
-let days = {};
-let token = ""
-let username = "";
-username = req.query.username
+const express = require("express");
+const app = express();
+app.all("/", (req, res) => {
+  let languages = {};
+  let starred = [];
+  let hours = {};
+  let days = {};
+  let token = "";
+  let username = "";
+  username = req.query.username;
 
-let results = {
-  MUL: "",
-  RS: "",
-  TOC: "",
-  DOC: "",
-  PRM: "",
-  NOC: 0,
-};
-//MUL = most used languages, RS = repo's starred, TOC = most common hours of commits(time of commits), Day of commits (most common days of commits), PRM = pull requests merged, NOC = number of contributions
-//displaying the data
-async function getContributions() {
-  const headers = {
-    Authorization: `bearer ${token}`,
+  let results = {
+    MUL: "",
+    RS: "",
+    TOC: "",
+    DOC: "",
+    PRM: "",
+    NOC: 0,
   };
-  const body = {
-    query:
-      "query {viewer {contributionsCollection {contributionCalendar {totalContributions}}}}",
-  };
-  const response = await fetch("https://api.github.com/graphql", {
-    method: "POST",
-    body: JSON.stringify(body),
-    headers: headers,
-  });
-  const data = await response.json();
-  results["NOC"] =
-    data.data.viewer.contributionsCollection.contributionCalendar.totalContributions;
-  return data;
-}
-function fetchMerged(link) {
-  return fetch(link, {
-    headers: {
+  //MUL = most used languages, RS = repo's starred, TOC = most common hours of commits(time of commits), Day of commits (most common days of commits), PRM = pull requests merged, NOC = number of contributions
+  //displaying the data
+  async function getContributions() {
+    const headers = {
       Authorization: `bearer ${token}`,
-    },
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(
-          `Network response was not ok, status: ${response.status}`
-        );
-      }
-
-      return response.json();
-    })
-    .then((data) => {
-      results["PRM"] = data["total_count"];
-    })
-    .catch((error) => {
-      console.log("Fetch error: ", error);
+    };
+    const body = {
+      query:
+        "query {viewer {contributionsCollection {contributionCalendar {totalContributions}}}}",
+    };
+    const response = await fetch("https://api.github.com/graphql", {
+      method: "POST",
+      body: JSON.stringify(body),
+      headers: headers,
     });
-}
-function fetchlanguage(link) {
-  return fetch(link, {
-    headers: {
-      Authorization: `bearer ${token}`,
-    },
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(
-          `Network response was not ok, status: ${response.status}`
-        );
-      }
+    const data = await response.json();
+    results["NOC"] =
+      data.data.viewer.contributionsCollection.contributionCalendar.totalContributions;
+    return data;
+  }
+  function fetchMerged(link) {
+    return fetch(link, {
+      headers: {
+        Authorization: `bearer ${token}`,
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(
+            `Network response was not ok, status: ${response.status}`
+          );
+        }
 
-      return response.json();
+        return response.json();
+      })
+      .then((data) => {
+        results["PRM"] = data["total_count"];
+      })
+      .catch((error) => {
+        console.log("Fetch error: ", error);
+      });
+  }
+  function fetchlanguage(link) {
+    return fetch(link, {
+      headers: {
+        Authorization: `bearer ${token}`,
+      },
     })
-    .then((data) => {
-      for (let key in data) {
-        languages[key]
-          ? (languages[key] += data[key])
-          : (languages[key] = data[key]);
-      }
-    })
-    .catch((error) => {
-      console.log("Fetch error: ", error);
-    });
-}
-function fetchStarred(link) {
-  return fetch(link, {
-    headers: {
-      Authorization: `bearer ${token}`,
-    },
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(
-          `Network response was not ok, status: ${response.status}`
-        );
-      }
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(
+            `Network response was not ok, status: ${response.status}`
+          );
+        }
 
-      return response.json();
+        return response.json();
+      })
+      .then((data) => {
+        for (let key in data) {
+          languages[key]
+            ? (languages[key] += data[key])
+            : (languages[key] = data[key]);
+        }
+      })
+      .catch((error) => {
+        console.log("Fetch error: ", error);
+      });
+  }
+  function fetchStarred(link) {
+    return fetch(link, {
+      headers: {
+        Authorization: `bearer ${token}`,
+      },
     })
-    .then((data) => {
-      for (let key in data) {
-        starred.push(data[key]["name"]);
-      }
-    })
-    .catch((error) => {
-      console.log("Fetch error: ", error);
-    });
-}
-function getHourAndDay(link) {
-  link = link.slice(0, link.length - 6);
-  return fetch(link, {
-    headers: {
-      Authorization: `bearer ${token}`,
-    },
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(
-          `Network response was not ok, status: ${response.status}`
-        );
-      }
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(
+            `Network response was not ok, status: ${response.status}`
+          );
+        }
 
-      return response.json();
+        return response.json();
+      })
+      .then((data) => {
+        for (let key in data) {
+          starred.push(data[key]["name"]);
+        }
+      })
+      .catch((error) => {
+        console.log("Fetch error: ", error);
+      });
+  }
+  function getHourAndDay(link) {
+    link = link.slice(0, link.length - 6);
+    return fetch(link, {
+      headers: {
+        Authorization: `bearer ${token}`,
+      },
     })
-    .then((data) => {
-      let daysOfWeek = [
-        "Sunday",
-        "Monday",
-        "Tuesday",
-        "wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-      ];
-      for (let key in data) {
-        let date = new Date(data[key]["commit"]["committer"]["date"]);
-        let hour = JSON.stringify(date.getHours()) + "T";
-        let day = daysOfWeek[date.getDay()];
-        hours[hour] ? (hours[hour] += 1) : (hours[hour] = 1);
-        days[day] ? (days[day] += 1) : (days[day] = 1);
-      }
-    })
-    .catch((error) => {
-      console.log("Fetch error: ", error);
-    });
-}
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(
+            `Network response was not ok, status: ${response.status}`
+          );
+        }
+
+        return response.json();
+      })
+      .then((data) => {
+        let daysOfWeek = [
+          "Sunday",
+          "Monday",
+          "Tuesday",
+          "wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+        ];
+        for (let key in data) {
+          let date = new Date(data[key]["commit"]["committer"]["date"]);
+          let hour = JSON.stringify(date.getHours()) + "T";
+          let day = daysOfWeek[date.getDay()];
+          hours[hour] ? (hours[hour] += 1) : (hours[hour] = 1);
+          days[day] ? (days[day] += 1) : (days[day] = 1);
+        }
+      })
+      .catch((error) => {
+        console.log("Fetch error: ", error);
+      });
+  }
 
   token = process.env.GITHUB_ACCESS_TOKEN;
   fetch("https://api.github.com/users/" + username + "/repos", {
@@ -188,19 +186,18 @@ function getHourAndDay(link) {
       );
       let sortedHours = Object.entries(hours).sort((a, b) => b[1] - a[1]);
       let sortedDays = Object.entries(days).sort((a, b) => b[1] - a[1]);
-      let topLanguages = sortedLanguages
-        .map((language) => language[0]);
-      let topThreeHours = sortedHours
-        .map((time) => time[0].replace("T", "") + ":00");
+      let topLanguages = sortedLanguages.map((language) => language[0]);
+      let topThreeHours = sortedHours.map(
+        (time) => time[0].replace("T", "") + ":00"
+      );
       results["MUL"] = topLanguages;
       results["RS"] = starred;
       results["TOC"] = topThreeHours;
       results["DOC"] = sortedDays;
-        res.send(results)
+      res.send(results);
     })
     .catch((error) => {
       console.log("Fetch error: ", error);
     });
-
-})
-app.listen(process.env.PORT || 3000)
+});
+app.listen(process.env.PORT || 3000);
