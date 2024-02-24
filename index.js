@@ -125,21 +125,23 @@ app.all("/", (req, res) => {
         return response.json();
       })
       .then((data) => {
-        let daysOfWeek = [
-          "Sunday",
-          "Monday",
-          "Tuesday",
-          "wednesday",
-          "Thursday",
-          "Friday",
-          "Saturday",
-        ];
-        for (let key in data) {
-          let date = new Date(data[key]["commit"]["committer"]["date"]);
-          let hour = JSON.stringify(date.getHours()) + "T";
-          let day = daysOfWeek[date.getDay()];
-          hours[hour] ? (hours[hour] += 1) : (hours[hour] = 1);
-          days[day] ? (days[day] += 1) : (days[day] = 1);
+        if (!data.message) {
+          let daysOfWeek = [
+            "Sunday",
+            "Monday",
+            "Tuesday",
+            "wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+          ];
+          for (let key in data) {
+            let date = new Date(data[key]["commit"]["committer"]["date"]);
+            let hour = JSON.stringify(date.getHours()) + "T";
+            let day = daysOfWeek[date.getDay()];
+            hours[hour] ? (hours[hour] += 1) : (hours[hour] = 1);
+            days[day] ? (days[day] += 1) : (days[day] = 1);
+          }
         }
       })
       .catch((error) => {
