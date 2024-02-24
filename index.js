@@ -109,8 +109,9 @@ app.all("/", (req, res) => {
         console.log("Fetch error: ", error);
       });
   }
-  function getHourAndDay(link) {
+  async function getHourAndDay(link) {
     link = link.slice(0, link.length - 6);
+    console.log(link);
     return fetch(link, {
       headers: {
         Authorization: `bearer ${token}`,
